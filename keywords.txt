@@ -1,0 +1,15 @@
+NeoPixelStatusEngine	KEYWORD1
+NeoPixelStatusEngineCore	KEYWORD1
+NeoPixelStatus	KEYWORD1
+NeoPixelDisplayedStatus	KEYWORD1
+setStatus	KEYWORD2
+setAlert	KEYWORD2
+setError	KEYWORD2
+setAlertDuration	KEYWORD2
+setErrorDuration	KEYWORD2
+setModeBrightness	KEYWORD2
+setBrightness	KEYWORD2
+Boot	LITERAL1
+BootFail	LITERAL1
+LoopIdle	LITERAL1
+LoopRGB	LITERAL1

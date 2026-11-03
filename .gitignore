@@ -1,0 +1,12 @@
+# Local-only Arduino outputs / secrets
+*.bin
+*.elf
+*.map
+*.hex
+*.log
+build/
+.cache/
+.vscode/
+.idea/
+__pycache__/
+*.pyc
