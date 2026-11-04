@@ -2,7 +2,7 @@ from pathlib import Path
 p=Path(__file__).resolve().parents[1]
 meta=dict(line.split("=",1) for line in (p/"library.properties").read_text().splitlines() if "=" in line)
 assert meta["name"]=="NeoPixel Status Engine"
-assert meta["version"]=="0.2.1"
+assert meta["version"]=="0.2.2"
 assert meta["includes"]=="NeoPixelStatusEngine.h"
 assert meta["depends"]=="Adafruit NeoPixel"
 assert (p/"src/NeoPixelStatusEngine.h").exists()

@@ -1,4 +1,4 @@
-# NeoPixel Status Engine v0.2.1
+# NeoPixel Status Engine v0.2.2 (development)
 
 A reusable, non-blocking Arduino library for RGB NeoPixel/WS2812 indicators.
 Single external dependency: **Adafruit NeoPixel**. Does not depend on PFCS,
@@ -86,3 +86,21 @@ https://github.com/EudoksjuszSzalony/NeoPixelStatusEngine
 
 **Not yet submitted** to Arduino Library Manager and no tagged release until
 Arduino Lint, license approval, ESP32 physical checks and API review.
+
+
+## Development update v0.2.2
+
+Corrects timer accounting when a busy application calls update() late: if Error
+expires within one update interval, the remaining elapsed time counts toward
+the paused Alert. Priority and default durations remain unchanged. Host tests
+include this stalled-loop regression. This commit is **not** a hardware release.
+
+The optional Windows offline build script discovers arduino-cli on PATH and
+Python from the py launcher or PATH; it keeps legacy local tool locations as a
+fallback. No external downloads, firmware upload or device-control commands
+are part of the script. Override paths when needed:
+
+    .\Build-NeoPixelStatusEngineOffline.ps1 -CliPath "C:\tools\arduino-cli.exe" -LibrariesPath "$HOME\Documents\Arduino\libraries"
+
+No release tag is created. Feather V2 hardware, LED electrical behavior and
+power rail handling remain unverified on physical hardware.

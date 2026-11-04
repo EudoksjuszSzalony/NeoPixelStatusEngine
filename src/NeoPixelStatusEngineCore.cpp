@@ -33,14 +33,16 @@ void NeoPixelStatusEngineCore::update(uint32_t now) {
     initialized_ = true;
     return;
   }
-  const uint32_t elapsed = now - lastUpdateMs_; // wrap-safe for regular ticks
+  uint32_t elapsed = now - lastUpdateMs_; // wrap-safe for regular ticks
   lastUpdateMs_ = now;
   // BootFail is latched and suspends all transient timers.
   if (base_ == BootFail) return;
-  // Error suspends the Alert countdown: no invisible consumed alert time.
+  // Error has priority. When it expires during this update, its unused time
+  // counts towards Alert rather than artificially extending that warning.
   if (errorRemainingMs_ != 0) {
-    errorRemainingMs_ = elapsed >= errorRemainingMs_ ? 0 : errorRemainingMs_ - elapsed;
-    return;
+    const uint32_t used = elapsed < errorRemainingMs_ ? elapsed : errorRemainingMs_;
+    errorRemainingMs_ -= used;
+    elapsed -= used;
   }
   if (alertRemainingMs_ != 0) {
     alertRemainingMs_ = elapsed >= alertRemainingMs_ ? 0 : alertRemainingMs_ - elapsed;

@@ -36,5 +36,23 @@ int main() {
  assert(wrap.displayedStatus()==NeoPixelDisplayedStatus::Error);
  wrap.update(0x00001E40UL);
  assert(wrap.displayedStatus()==NeoPixelDisplayedStatus::LoopRGB);
- std::puts("PASS core: typed enum, durations, priority, BootFail, millis wrap");
+ // Stalled loop: Error must consume only its 8000 ms, then Alert resumes.
+ NeoPixelStatusEngineCore delayed;
+ delayed.setStatus(LoopIdle);
+ delayed.setAlert(100);
+ delayed.setError(200); // Alert already displayed for 100 ms
+ delayed.update(9000); // Error ends, 800 ms of Alert also elapsed
+ assert(delayed.displayedStatus()==NeoPixelDisplayedStatus::Alert);
+ delayed.update(12099);
+ assert(delayed.displayedStatus()==NeoPixelDisplayedStatus::Alert);
+ delayed.update(12100);
+ assert(delayed.displayedStatus()==NeoPixelDisplayedStatus::LoopIdle);
+ // Both events may expire in a single delayed update.
+ NeoPixelStatusEngineCore bothExpired;
+ bothExpired.setStatus(LoopRGB);
+ bothExpired.setAlert(100);
+ bothExpired.setError(100);
+ bothExpired.update(14000);
+ assert(bothExpired.displayedStatus()==NeoPixelDisplayedStatus::LoopRGB);
+ std::puts("PASS core: typed enum, durations, priority, BootFail, millis wrap, stalled-loop timing");
 }
