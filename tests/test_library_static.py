@@ -17,4 +17,6 @@ assert "enum NeoPixelStatus : uint8_t" in all_source
 assert "setStatus(NeoPixelStatus status)" in all_source
 for name in ["setAlert(", "setError(", "setBrightness(", "setModeBrightness(", "setAlertBrightness(", "setErrorBrightness("]:
     assert name in all_source,name
-print("PASS: library metadata, typed enum, autocomplete API, status priority, PWM untouched")
+for name in ("AnimationHost.cpp", "TimingStressHost.cpp", "StatusEngineHost.cpp", "AdapterHost.cpp"):
+    assert (p/"tests"/name).exists(), name
+print("PASS: library metadata, typed enum, autocomplete API, status priority, host suites, PWM untouched")

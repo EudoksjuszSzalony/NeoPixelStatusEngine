@@ -95,12 +95,32 @@ expires within one update interval, the remaining elapsed time counts toward
 the paused Alert. Priority and default durations remain unchanged. Host tests
 include this stalled-loop regression. This commit is **not** a hardware release.
 
-The optional Windows offline build script discovers arduino-cli on PATH and
-Python from the py launcher or PATH; it keeps legacy local tool locations as a
-fallback. No external downloads, firmware upload or device-control commands
-are part of the script. Override paths when needed:
+The Windows offline build script prefers the Arduino IDE CLI and its
+~/.arduinoIDE/arduino-cli.yaml configuration (standard Arduino15 package store).
+PATH and the legacy CLI are fallbacks. Python is found through the py launcher
+or PATH. No external downloads, firmware upload or device-control commands
+are part of this script. Override paths when needed:
 
     .\Build-NeoPixelStatusEngineOffline.ps1 -CliPath "C:\tools\arduino-cli.exe" -LibrariesPath "$HOME\Documents\Arduino\libraries"
 
 No release tag is created. Feather V2 hardware, LED electrical behavior and
 power rail handling remain unverified on physical hardware.
+
+
+## Host test suite (development)
+
+The native C++11 tests can run on a computer without an ESP32 or Adafruit
+NeoPixel hardware. Windows tests/Run-HostTests.ps1 tries the first available
+compiler in PATH: g++, clang++, then Visual Studio cl.exe (for cl.exe, start
+from a Developer PowerShell so the MSVC environment is configured). It covers
+the status state machine, animation colors and BootFail cadence, timing under
+sparse updates and millis() wraparound, and the Adafruit NeoPixel adapter using
+test stubs.
+
+    .\tests\Run-HostTests.ps1
+
+A direct invocation fails if no native compiler is available. The full
+Build-NeoPixelStatusEngineOffline.ps1 uses -AllowSkip for host tests so that
+Arduino compilation still works on a machine without a native compiler and
+reports host testing as NOT RUN. These tests cannot validate physical power,
+GPIO0 boot strapping, real LEDs or the Controller's pump safety.

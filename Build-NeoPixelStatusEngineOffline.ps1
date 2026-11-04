@@ -86,11 +86,4 @@ $cliArguments += @('--build-path', $build, '--warnings', 'more',
 if ($LASTEXITCODE -ne 0) { throw 'Arduino Feather V2 compilation FAILED' }
 Write-Host 'PASS: Arduino Feather ESP32 V2 offline example compilation (no upload)'
 
-if (Get-Command g++ -ErrorAction SilentlyContinue) {
-  & (Join-Path $root 'tests\Run-HostTests.ps1')
-  if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-    throw 'Host tests FAILED'
-  }
-} else {
-  Write-Host 'NOT RUN: native C++ host tests (g++ is not installed)'
-}
+& (Join-Path $root 'tests\Run-HostTests.ps1') -AllowSkip
