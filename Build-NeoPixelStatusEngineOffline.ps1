@@ -9,21 +9,45 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
+# Prefer the CLI bundled with Arduino IDE, sharing its normal Arduino15 packages.
+# The self-contained CyberFanBuildTools copy is only a last-resort fallback.
 $legacyTools = Join-Path $env:LOCALAPPDATA 'CyberFanBuildTools\ArduinoCliV1'
-$cliCommand = Get-Command arduino-cli -ErrorAction SilentlyContinue
+$legacyCli = Join-Path $legacyTools 'arduino-cli.exe'
 if (-not $CliPath) {
-  if ($cliCommand) { $CliPath = $cliCommand.Source }
-  else { $CliPath = Join-Path $legacyTools 'arduino-cli.exe' }
-}
-if (-not (Test-Path -LiteralPath $CliPath -PathType Leaf)) {
-  throw "Arduino CLI not found (use -CliPath): $CliPath"
-}
-if (-not $ConfigPath) {
-  $legacyConfig = Join-Path $legacyTools 'arduino-cli.yaml'
-  if (Test-Path -LiteralPath $legacyConfig -PathType Leaf) {
-    $ConfigPath = $legacyConfig
+  $ideCandidates = @(
+    (Join-Path $env:ProgramFiles 'Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe'),
+    (Join-Path $env:LOCALAPPDATA 'Programs\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe')
+  )
+  foreach ($candidate in $ideCandidates) {
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+      $CliPath = $candidate
+      break
+    }
+  }
+  if (-not $CliPath) {
+    $cliCommand = Get-Command arduino-cli -ErrorAction SilentlyContinue
+    if ($cliCommand) { $CliPath = $cliCommand.Source }
+  }
+  if (-not $CliPath -and (Test-Path -LiteralPath $legacyCli -PathType Leaf)) {
+    $CliPath = $legacyCli
   }
 }
+if (-not $CliPath -or -not (Test-Path -LiteralPath $CliPath -PathType Leaf)) {
+  throw "Arduino CLI not found (use -CliPath or install Arduino IDE 2): $CliPath"
+}
+if (-not $ConfigPath) {
+  $ideConfig = Join-Path $HOME '.arduinoIDE\arduino-cli.yaml'
+  if (Test-Path -LiteralPath $ideConfig -PathType Leaf) {
+    $ConfigPath = $ideConfig
+  } elseif ([string]::Equals($CliPath, $legacyCli, [StringComparison]::OrdinalIgnoreCase)) {
+    $legacyConfig = Join-Path $legacyTools 'arduino-cli.yaml'
+    if (Test-Path -LiteralPath $legacyConfig -PathType Leaf) {
+      $ConfigPath = $legacyConfig
+    }
+  }
+}
+Write-Host "Arduino CLI: $CliPath"
+Write-Host "Arduino config: $(if ($ConfigPath) { $ConfigPath } else { 'CLI defaults (Arduino15)' })"
 if ($ConfigPath -and -not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
   throw "Arduino CLI config not found: $ConfigPath"
 }
